@@ -5,7 +5,6 @@ from faker import Faker
 import random
 import pandas as pd
 import openpyxl
-from scipy.fftpack import diff
 
 fake = Faker()
 
