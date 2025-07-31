@@ -97,6 +97,20 @@ def generate_fake_royalty_record():
     else:
         months_to_break_even = prod_cost / monthly_earnings if monthly_earnings > 0 else "Never"
 
+    has_broken_even = months_to_break_even != "Never" and months_since_release >= months_to_break_even
+    loss_leader = royalty_rate < 0.20 and monthly_units < 100 and not has_broken_even
+    risky_combo = (
+        royalty_rate < 0.35
+        and narrator_split == True
+        and prod_cost > 5000
+    )
+    overachiever = (
+        royalty_rate >= 0.50
+        and monthly_units > 700
+        and months_to_break_even != "Never"
+        and months_to_break_even < 2
+    )
+
     return {
         'Author': fake.name(),
         'Book Title': fake.sentence(nb_words=4),
@@ -110,7 +124,11 @@ def generate_fake_royalty_record():
         'Production Cost': prod_cost,
         'Royalty Rate': royalty_rate,
         'Monthly Earnings': round(monthly_earnings, 2),
-        'Months to Break Even': round(months_to_break_even, 1) if months_to_break_even else "Never"
+        'Months to Break Even': round(months_to_break_even, 1) if months_to_break_even else "Never",
+        'Has Broken Even': has_broken_even,
+        'Loss Leader': loss_leader,
+        'Risky Combo': risky_combo,
+        'Overachiever': overachiever
     }
 
 # Create 50 fake entries
