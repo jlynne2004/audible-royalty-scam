@@ -97,7 +97,10 @@ def generate_fake_royalty_record():
     else:
         months_to_break_even = prod_cost / monthly_earnings
     
-    has_broken_even = months_to_break_even != "Never" and months_since_release >= months_to_break_even
+    has_broken_even = (
+        isinstance(months_to_break_even, (int, float))
+        and months_since_release >= months_to_break_even
+    )
     loss_leader = royalty_rate < 0.20 and monthly_units < 100 and not has_broken_even
     risky_combo = (
         royalty_rate < 0.35
