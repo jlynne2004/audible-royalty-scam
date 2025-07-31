@@ -5,6 +5,7 @@ from faker import Faker
 import random
 import pandas as pd
 import openpyxl
+from scipy.fftpack import diff
 
 fake = Faker()
 
@@ -49,7 +50,22 @@ def generate_fake_royalty_record():
     platform = random.choice(platforms)
     
     book_price = round(random.uniform(7.99, 19.99), 2)
-    monthly_units = random.randint(50, 1000)
+    release_date = fake.date_between(start_date='-2y', end_date='today')
+    today = pd.to_datetime(pd.Timestamp.today())
+    months_since_release = (today - pd.to_datetime(release_date)).days // 30
+    if months_since_release < 1:
+        monthly_units = random.randint(20, 250)
+    elif months_since_release < 3:
+        monthly_units = random.randint(100, 500)
+    elif months_since_release < 6:
+        monthly_units = random.randint(150, 800)
+    else:
+        monthly_units = random.randint(200, 1000)
+    
+    # OPTIONAL: Apply a bonus for new releases with launch buzz
+    if months_since_release < 1 and random.random() < 0.5:
+        monthly_units = int(monthly_units * 1.3)  # 30% boost
+    new_release_boost = months_since_release < 1 and random.random() < 0.5
     narrator_split = random.choice([True, False])
     prod_cost = random.randint(1500, 6000)
 
@@ -67,10 +83,14 @@ def generate_fake_royalty_record():
 
     # Check for division by zero
     if monthly_units == 0:
+        royalty_per_sale = 0
         monthly_earnings = 0
     else:
+        if narrator_split:
+            royalty_rate /= 2  # Split with narrator
         royalty_per_sale = book_price * royalty_rate
         monthly_earnings = monthly_units * royalty_per_sale
+
     
     # Check for division by zero
     if prod_cost == 0:
@@ -81,7 +101,8 @@ def generate_fake_royalty_record():
     return {
         'Author': fake.name(),
         'Book Title': fake.sentence(nb_words=4),
-        'Audiobook Release Date': fake.date_between(start_date='-2y', end_date='today'),
+        'Audiobook Release Date': release_date,
+        'New Release Boost': new_release_boost,
         'Platform': platform,
         'Book Price': book_price,
         'Narrator Split': narrator_split,
