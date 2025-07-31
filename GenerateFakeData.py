@@ -81,6 +81,7 @@ def generate_fake_royalty_record():
     return {
         'Author': fake.name(),
         'Book Title': fake.sentence(nb_words=4),
+        'Audiobook Release Date': fake.date_between(start_date='-2y', end_date='today'),
         'Platform': platform,
         'Book Price': book_price,
         'Narrator Split': narrator_split,
