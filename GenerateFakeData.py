@@ -72,6 +72,7 @@ def generate_fake_royalty_record():
     "Taylor James", "Rachel Scott", "AI Narrator"
     ]
     narrator = random.choice(narrators)
+    narrator_split = False # Default to no split unless specified by platform logic
     # Production cost logic
     if platform == 'ACX Royalty Share':
         narrator_split = random.random() < 0.4  # 40% chance of narrator split
