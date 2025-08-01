@@ -54,14 +54,25 @@ def generate_fake_royalty_record():
     months_since_release = (today - pd.to_datetime(release_date)).days // 30
     
     # Monthly units sold based on months since release
-    if months_since_release < 1:
-        monthly_units = random.randint(20, 250)
-    elif months_since_release < 3:
-        monthly_units = random.randint(100, 500)
-    elif months_since_release < 6:
-        monthly_units = random.randint(150, 800)
+    if platform == 'ACX Royalty Share':
+        # Royalty Share books tend to have lower sales
+        if months_since_release < 1:
+            monthly_units = random.randint(10, 80)
+        elif months_since_release < 3:
+            monthly_units = random.randint(30, 150)
+        elif months_since_release < 6:
+            monthly_units = random.randint(50, 250)
+        else:
+            monthly_units = random.randint(60, 300)
     else:
-        monthly_units = random.randint(200, 1000)
+        if months_since_release < 1:
+            monthly_units = random.randint(20, 250)
+        elif months_since_release < 3:
+            monthly_units = random.randint(100, 500)
+        elif months_since_release < 6:
+            monthly_units = random.randint(150, 800)
+        else:
+            monthly_units = random.randint(200, 1000)
     
     # OPTIONAL: Apply a bonus for new releases with launch buzz
     if months_since_release < 1 and random.random() < 0.5:
@@ -91,11 +102,19 @@ def generate_fake_royalty_record():
         else:
             prod_cost = random.uniform(2000, 4000)  # Mid-range narrators
 
+    # Increase production cost for ACX Royalty Share
+    if platform == 'ACX Royalty Share':
+        prod_cost *= random.uniform(1.1, 1.5)  # 10-50% more expensive
+
     # Simulate payout logic
     if platform == 'ACX Exclusive':
         royalty_rate = 0.40
     elif platform == 'ACX Royalty Share':
-        royalty_rate = 0.40 / 2 if narrator_split else 0.40
+        # Lower and more variable royalty rate for Royalty Share
+        if narrator_split:
+            royalty_rate = round(random.uniform(0.10, 0.18), 3)
+        else:
+            royalty_rate = round(random.uniform(0.18, 0.25), 3)
     elif platform == 'Findaway':
         royalty_rate = round(random.uniform(0.30, 0.45), 3) # realistic range
     elif platform == 'BookFunnel':
@@ -147,6 +166,12 @@ def generate_fake_royalty_record():
         and months_since_release <= 3
     )
 
+    # Add a flag for ACX Royalty Share risk
+    acx_royalty_share_risk = (
+        platform == 'ACX Royalty Share'
+        and (royalty_rate < 0.18 or prod_cost > 5000 or not has_broken_even)
+    )
+
     return {
         'Author': fake.name(),
         'Book Title': fake.sentence(nb_words=4),
@@ -166,7 +191,8 @@ def generate_fake_royalty_record():
         'Has Broken Even': has_broken_even,
         'Loss Leader': loss_leader,
         'Risky Combo': risky_combo,
-        'Overachiever': overachiever
+        'Overachiever': overachiever,
+        'ACX Royalty Share Risk': acx_royalty_share_risk
     }
 
 # Create 50 fake entries
