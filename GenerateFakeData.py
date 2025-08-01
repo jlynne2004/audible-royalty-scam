@@ -52,6 +52,8 @@ def generate_fake_royalty_record():
     release_date = fake.date_between(start_date='-2y', end_date='today')
     today = pd.to_datetime(pd.Timestamp.today())
     months_since_release = (today - pd.to_datetime(release_date)).days // 30
+    
+    # Monthly units sold based on months since release
     if months_since_release < 1:
         monthly_units = random.randint(20, 250)
     elif months_since_release < 3:
@@ -60,13 +62,40 @@ def generate_fake_royalty_record():
         monthly_units = random.randint(150, 800)
     else:
         monthly_units = random.randint(200, 1000)
+
+    # Override for narrator-split low-royalty books
+    if royalty_rate < 0.25 and narrator_split:
+        if random.random() < 0.05:  # 5% chance of low sales
+            monthly_units = random.randint(500, 800)
+        else:
+            monthly_units = random.randint(20, 300)
     
     # OPTIONAL: Apply a bonus for new releases with launch buzz
     if months_since_release < 1 and random.random() < 0.5:
         monthly_units = int(monthly_units * 1.3)  # 30% boost
     new_release_boost = months_since_release < 1 and random.random() < 0.5
-    narrator_split = random.choice([True, False])
-    prod_cost = random.randint(1500, 6000)
+    narrators = [
+    "Jason Clarke", "Samantha Prescott", "Ava Winters",
+    "Taylor James", "Rachel Scott", "AI Narrator"
+    ]
+    narrator = random.choice(narrators)
+    # Production cost logic
+    if platform == 'ACX Royalty Share':
+        narrator_split = random.random() < 0.4  # 40% chance of narrator split
+    
+    if narrator == "AI Narrator":
+        if random.random() < 0.4:
+            prod_cost = 0  # Using Amazon Virtual Voice or free AI beta
+            uses_amazon_ai = True
+        else:
+            prod_cost = random.uniform(100, 1500)
+            uses_amazon_ai = True
+    else:
+        uses_amazon_ai = False
+        if narrator in ["Jason Clarke", "Samantha Prescott", "Ava Winters"]:
+            prod_cost = random.uniform(4000, 8000)  # High-end narrators
+        else:
+            prod_cost = random.uniform(2000, 4000)  # Mid-range narrators
 
     # Simulate payout logic
     if platform == 'ACX Exclusive':
@@ -74,11 +103,13 @@ def generate_fake_royalty_record():
     elif platform == 'ACX Royalty Share':
         royalty_rate = 0.40 / 2 if narrator_split else 0.40
     elif platform == 'Findaway':
-        royalty_rate = 0.45
+        royalty_rate = round(random.uniform(0.30, 0.45), 3) # realistic range
     elif platform == 'BookFunnel':
         royalty_rate = 1.00
+    elif platform == 'Spotify' and random.random() < 0.3:  # 30% chance of bad month
+        royalty_rate = round(random.uniform(0.30, 0.50), 3)  # subscription payout range
     else:
-        royalty_rate = 0.50  # Spotify or AYCL assumption
+        royalty_rate = round(random.uniform(0.30, 0.50), 3)  # catch-all ACYL rate
 
     # Check for division by zero
     if monthly_units == 0:
@@ -112,6 +143,7 @@ def generate_fake_royalty_record():
         and monthly_units > 700
         and months_to_break_even != "Never"
         and months_to_break_even < 2
+        and months_since_release <= 3
     )
 
     return {
@@ -122,9 +154,11 @@ def generate_fake_royalty_record():
         'Months Since Release': months_since_release,
         'Platform': platform,
         'Book Price': book_price,
-        'Narrator Split': narrator_split,
-        'Monthly Units': monthly_units,
         'Production Cost': prod_cost,
+        'Narrator Split': narrator_split,
+        'Narrator': narrator,
+        'Uses Amazon AI': uses_amazon_ai,
+        'Monthly Units': monthly_units,
         'Royalty Rate': royalty_rate,
         'Monthly Earnings': round(monthly_earnings, 2),
         'Months to Break Even': round(months_to_break_even, 1) if months_to_break_even else "Never",
