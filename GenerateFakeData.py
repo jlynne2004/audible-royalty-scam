@@ -62,13 +62,6 @@ def generate_fake_royalty_record():
         monthly_units = random.randint(150, 800)
     else:
         monthly_units = random.randint(200, 1000)
-
-    # Override for narrator-split low-royalty books
-    if royalty_rate < 0.25 and narrator_split:
-        if random.random() < 0.05:  # 5% chance of low sales
-            monthly_units = random.randint(500, 800)
-        else:
-            monthly_units = random.randint(20, 300)
     
     # OPTIONAL: Apply a bonus for new releases with launch buzz
     if months_since_release < 1 and random.random() < 0.5:
@@ -111,6 +104,13 @@ def generate_fake_royalty_record():
     else:
         royalty_rate = round(random.uniform(0.30, 0.50), 3)  # catch-all ACYL rate
 
+    # Override for narrator-split low-royalty books
+    if royalty_rate < 0.25 and narrator_split:
+        if random.random() < 0.05:  # 5% chance of low sales
+            monthly_units = random.randint(500, 800)
+        else:
+            monthly_units = random.randint(20, 300)
+            
     # Check for division by zero
     if monthly_units == 0:
         royalty_per_sale = 0
