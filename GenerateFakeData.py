@@ -92,9 +92,11 @@ def generate_fake_royalty_record():
         if random.random() < 0.4:
             prod_cost = 0  # Using Amazon Virtual Voice or free AI beta
             uses_amazon_ai = True
+            narrator_split = False  # AI Narrator doesn't split royalties
         else:
             prod_cost = random.uniform(100, 1500)
             uses_amazon_ai = True
+            narrator_split = False  # AI Narrator doesn't split royalties
     else:
         uses_amazon_ai = False
         if narrator in ["Jason Clarke", "Samantha Prescott", "Ava Winters"]:
