@@ -151,18 +151,17 @@ def generate_fake_royalty_record():
         months_to_break_even = prod_cost / monthly_earnings
 
     break_even_date = pd.to_datetime(release_date) + pd.DateOffset(months=months_to_break_even) if isinstance(months_to_break_even, (int, float)) else "Unknown"
-    break_even_status = (
     if months_to_break_even == 0:
-        status = "Already Profitable"
+        break_even_status = "Already Profitable"
     elif months_to_break_even == "Unknown":
-        status = "Unclear - No Earnings Yet"
+        break_even_status = "Unclear - No Earnings Yet"
     elif royalty_rate < 0.20 and monthly_units < 100:
-        status = "Unlikely"
+        break_even_status = "Unlikely"
     elif months_to_break_even > months_since_release:
-        status = "In Progress"
+        break_even_status = "In Progress"
     else:
-        status = "Broken Even"
-    )
+        break_even_status = "Broken Even"
+
     loss_leader = royalty_rate < 0.20 and monthly_units < 100 and not has_broken_even
     risky_combo = (
         royalty_rate < 0.35
