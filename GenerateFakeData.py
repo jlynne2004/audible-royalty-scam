@@ -143,14 +143,25 @@ def generate_fake_royalty_record():
 
     
     # Check for division by zero
-    if prod_cost == 0 or monthly_earnings <= 0:
-        months_to_break_even = "Never"
+    if monthly_earnings <= 0 and prod_cost == 0:
+        months_to_break_even = 0
+    elif royalty_rate < 0.15 or monthly_earnings <= 0:
+        months_to_break_even = "Unknown"
     else:
         months_to_break_even = prod_cost / monthly_earnings
-    
-    has_broken_even = (
-        isinstance(months_to_break_even, (int, float))
-        and months_since_release >= months_to_break_even
+
+    break_even_date = pd.to_datetime(release_date) + pd.DateOffset(months=months_to_break_even) if isinstance(months_to_break_even, (int, float)) else "Unknown"
+    break_even_status = (
+    if months_to_break_even == 0:
+        status = "Already Profitable"
+    elif months_to_break_even == "Unknown":
+        status = "Unclear - No Earnings Yet"
+    elif royalty_rate < 0.20 and monthly_units < 100:
+        status = "Unlikely"
+    elif months_to_break_even > months_since_release:
+        status = "In Progress"
+    else:
+        status = "Broken Even"
     )
     loss_leader = royalty_rate < 0.20 and monthly_units < 100 and not has_broken_even
     risky_combo = (
@@ -161,7 +172,7 @@ def generate_fake_royalty_record():
     overachiever = (
         royalty_rate >= 0.50
         and monthly_units > 700
-        and months_to_break_even != "Never"
+        and months_to_break_even != "Unknown"
         and months_to_break_even < 2
         and months_since_release <= 3
     )
@@ -187,8 +198,9 @@ def generate_fake_royalty_record():
         'Monthly Units': monthly_units,
         'Royalty Rate': royalty_rate,
         'Monthly Earnings': round(monthly_earnings, 2),
-        'Months to Break Even': round(months_to_break_even, 1) if isinstance(months_to_break_even, (int, float)) else "Never",
-        'Has Broken Even': has_broken_even,
+        'Est. Months to Break Even': round(months_to_break_even, 1) if isinstance(months_to_break_even, (int, float)) else "Unknown", # based on current earnings
+        'Break Even Status': break_even_status,
+        'Break Even Date': break_even_date,
         'Loss Leader': loss_leader,
         'Risky Combo': risky_combo,
         'Overachiever': overachiever,
