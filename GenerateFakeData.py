@@ -187,7 +187,7 @@ def generate_fake_royalty_record():
         'Monthly Units': monthly_units,
         'Royalty Rate': royalty_rate,
         'Monthly Earnings': round(monthly_earnings, 2),
-        'Months to Break Even': round(months_to_break_even, 1) if months_to_break_even else "Never",
+        'Months to Break Even': round(months_to_break_even, 1) if isinstance(months_to_break_even, (int, float)) else "Never",
         'Has Broken Even': has_broken_even,
         'Loss Leader': loss_leader,
         'Risky Combo': risky_combo,
