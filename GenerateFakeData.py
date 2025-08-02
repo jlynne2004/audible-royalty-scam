@@ -47,7 +47,14 @@ simulate_aycl_royalty(num_books_listened=10, narrator_split=True)
 def generate_fake_royalty_record():
     platforms = ['ACX Exclusive', 'ACX Royalty Share', 'Findaway', 'BookFunnel', 'Spotify']
     platform = random.choice(platforms)
-    
+
+    if platform == 'ACX Royalty Share':
+        platform_type = 'Royalty Share'
+    elif platform == 'BookFunnel':
+        platform_type = 'Retail'
+    else:
+        platform_type = 'Subscription'
+
     book_price = round(random.uniform(7.99, 19.99), 2)
     release_date = fake.date_between(start_date='-2y', end_date='today')
     today = pd.to_datetime(pd.Timestamp.today())
@@ -104,6 +111,16 @@ def generate_fake_royalty_record():
         else:
             prod_cost = random.uniform(2000, 4000)  # Mid-range narrators
 
+    # Narrator Type
+    if narrator == "AI Narrator":
+        narrator_type = "AI"
+    elif platform == 'ACX Royalty Share':
+        narrator_type = "Royalty Share Narrator"
+    elif narrator in ["Jason Clarke", "Samantha Prescott", "Ava Winters"]:
+        narrator_type = "High-End"
+    else:
+        narrator_type = "Mid-Range"
+
     # Increase production cost for ACX Royalty Share
     if platform == 'ACX Royalty Share':
         prod_cost *= random.uniform(1.1, 1.5)  # 10-50% more expensive
@@ -146,7 +163,7 @@ def generate_fake_royalty_record():
     
     # Check for division by zero
     if monthly_earnings <= 0 and prod_cost == 0:
-        months_to_break_even = 0
+        months_to_break_even = 'Already Profitable'
     elif royalty_rate < 0.15 or monthly_earnings <= 0:
         months_to_break_even = "Unknown"
     else:
@@ -189,28 +206,42 @@ def generate_fake_royalty_record():
         and (royalty_rate < 0.18 or prod_cost > 5000 or not has_broken_even)
     )
 
+    if loss_leader:
+        chaos_flag = "Loss Leader"
+    elif risky_combo:
+        chaos_flag = "Risky Combo"
+    elif overachiever:  
+        chaos_flag = "Overachiever"
+    elif acx_royalty_share_risk:
+        chaos_flag = "ACX Royalty Risk"
+    else:
+        chaos_flag = ""
+
     return {
-        'Author': fake.name(),
-        'Book Title': fake.sentence(nb_words=4),
-        'Audiobook Release Date': release_date,
-        'New Release Boost': new_release_boost,
-        'Months Since Release': months_since_release,
+        # 'Author': fake.name(),
+        # 'Book Title': fake.sentence(nb_words=4),
+        # 'Release Date': release_date,
+        # 'New Release Boost': new_release_boost,
+        # 'Months Since Release': months_since_release,
         'Platform': platform,
+        'Platform Type': platform_type,
         'Book Price': book_price,
         'Production Cost': prod_cost,
-        'Narrator Split': narrator_split,
-        'Narrator': narrator,
-        'Uses Amazon AI': uses_amazon_ai,
-        'Monthly Units': monthly_units,
+        'Monthly Units Sold': monthly_units,
         'Royalty Rate': royalty_rate,
         'Monthly Earnings': round(monthly_earnings, 2),
+        'Narrator Type': narrator_type,
+        'Narrator Split': narrator_split,
+        # 'Narrator': narrator,
+        'Uses Amazon AI': uses_amazon_ai,
         'Est. Months to Break Even': round(months_to_break_even, 1) if isinstance(months_to_break_even, (int, float)) else "Unknown", # based on current earnings
         'Break Even Status': break_even_status,
         'Break Even Date': break_even_date,
-        'Loss Leader': loss_leader,
-        'Risky Combo': risky_combo,
-        'Overachiever': overachiever,
-        'ACX Royalty Share Risk': acx_royalty_share_risk
+        'Chaos Flag': chaos_flag
+        # 'Loss Leader': loss_leader,
+        # 'Risky Combo': risky_combo,
+        # 'Overachiever': overachiever,
+        # 'ACX Royalty Share Risk': acx_royalty_share_risk
     }
 
 # Create 50 fake entries
