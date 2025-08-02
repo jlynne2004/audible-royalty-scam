@@ -114,8 +114,6 @@ def generate_fake_royalty_record():
     # Narrator Type
     if narrator == "AI Narrator":
         narrator_type = "AI"
-    elif platform == 'ACX Royalty Share':
-        narrator_type = "Royalty Share Narrator"
     elif narrator in ["Jason Clarke", "Samantha Prescott", "Ava Winters"]:
         narrator_type = "High-End"
     else:
@@ -236,7 +234,7 @@ def generate_fake_royalty_record():
         'Uses Amazon AI': uses_amazon_ai,
         'Est. Months to Break Even': round(months_to_break_even, 1) if isinstance(months_to_break_even, (int, float)) else "Unknown", # based on current earnings
         'Break Even Status': break_even_status,
-        'Break Even Date': break_even_date,
+        # 'Break Even Date': break_even_date,
         'Chaos Flag': chaos_flag
         # 'Loss Leader': loss_leader,
         # 'Risky Combo': risky_combo,
